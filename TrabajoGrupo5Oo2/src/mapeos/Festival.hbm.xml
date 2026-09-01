@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "https://hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="datos.Festival" table="festival">
+
+        <!-- ID -->
+        <id name="id" column="id">
+            <generator class="identity"/>
+        </id>
+
+        <!-- ATRIBUTOS -->
+        <property name="nombre"
+                  column="nombre"
+                  type="string"
+                  not-null="true"/>
+
+        <property name="temporada"
+                  column="temporada"
+                  type="string"
+                  not-null="true"/>
+
+        <property name="fechaInicio"
+                  column="fechaInicio"
+                  type="java.time.LocalDate"
+                  not-null="true"/>
+
+        <property name="fechaFin"
+                  column="fechaFin"
+                  type="java.time.LocalDate"
+                  not-null="true"/>
+
+        <!-- COSTOS ESTABLECIDOS POR EL FESTIVAL -->
+        <property name="costoPorSuperficie"
+                  column="costoPorSuperficie"
+                  type="double"
+                  not-null="true"/>
+
+        <property name="costoPorMontaje"
+                  column="costoPorMontaje"
+                  type="double"
+                  not-null="true"/>
+
+        <property name="plusUsoElectricidad"
+                  column="plusUsoElectricidad"
+                  type="double"
+                  not-null="true"/>
+
+        <property name="sueldoBase"
+                  column="sueldoBase"
+                  type="double"
+                  not-null="true"/>
+
+        <!-- RELACION N:M CON UNIDADES DE VENTA -->
+        <bag name="unidadesDeVenta"
+             table="unidadVenta_festival"
+             inverse="true">
+
+            <key column="festivalId"/>
+
+            <many-to-many
+                class="datos.UnidadVenta"
+                column="unidadVentaId"/>
+
+        </bag>
+
+        <!-- RELACION 1:N CON PEDIDOS -->
+        <bag name="pedidos"
+             inverse="true">
+
+            <key column="festivalId"/>
+
+            <one-to-many
+                class="datos.Pedido"/>
+
+        </bag>
+
+    </class>
+
+</hibernate-mapping>
