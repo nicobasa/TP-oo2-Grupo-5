@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "https://hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="datos.Pedido"
+           table="pedido">
+
+        <!-- ID -->
+        <id name="id" column="id">
+            <generator class="identity"/>
+        </id>
+
+        <!-- ATRIBUTO -->
+        <property name="fechaTransaccion"
+                  column="fechaTransaccion"
+                  type="java.time.LocalDateTime"
+                  not-null="true"/>
+
+        <!-- RELACION CON FESTIVAL -->
+        <many-to-one name="festival"
+                     class="datos.Festival"
+                     column="festivalId"
+                     not-null="true"/>
+
+        <!-- RELACION CON UNIDAD DE VENTA -->
+        <many-to-one name="unidadDeVenta"
+                     class="datos.UnidadVenta"
+                     column="unidadVentaId"
+                     not-null="true"/>
+
+        <!-- RELACION 1:N CON DETALLE PEDIDO -->
+        <bag name="detalles"
+             inverse="true"
+             cascade="all">
+
+            <key column="idPedido"/>
+
+            <one-to-many
+                class="datos.DetallePedido"/>
+
+        </bag>
+
+    </class>
+
+</hibernate-mapping>

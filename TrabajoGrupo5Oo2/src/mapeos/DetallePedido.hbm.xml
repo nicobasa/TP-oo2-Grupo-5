@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "https://hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="datos.DetallePedido" table="detallePedido">
+
+        <!-- ID -->
+        <id name="id" column="id">
+            <generator class="identity"/>
+        </id>
+
+        <!-- ATRIBUTOS -->
+        <property name="cantidad"
+                  column="cantidad"
+                  type="integer"
+                  not-null="true"/>
+
+        <property name="precioUnitario"
+                  column="precioUnitario"
+                  type="double"
+                  not-null="true"/>
+
+        <!-- RELACIÓN CON PLATO -->
+        <many-to-one name="plato"
+                     class="datos.Plato"
+                     column="idPlato"
+                     not-null="true"/>
+
+        <!-- RELACIÓN CON PEDIDO -->
+        <many-to-one name="pedido"
+                     class="datos.Pedido"
+                     column="idPedido"
+                     not-null="true"/>
+
+    </class>
+
+</hibernate-mapping>
