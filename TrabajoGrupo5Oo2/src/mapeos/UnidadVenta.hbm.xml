@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "https://hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="datos.UnidadVenta"
+           table="unidadVenta">
+
+        <!-- ID -->
+        <id name="id" column="id">
+            <generator class="identity"/>
+        </id>
+
+        <!-- DISCRIMINADOR DE HERENCIA -->
+        <discriminator column="tipoUnidad"
+                       type="string"/>
+
+        <!-- ATRIBUTOS -->
+        <property name="nombreComercial"
+                  column="nombreComercial"
+                  type="string"
+                  not-null="true"/>
+
+        <property name="superficie"
+                  column="superficie"
+                  type="double"
+                  not-null="true"/>
+
+        <property name="codigo"
+                  column="codigo"
+                  type="string"
+                  length="10"
+                  unique="true"
+                  not-null="true"/>
+
+        <!-- RELACION CON EMPLEADO RESPONSABLE -->
+        <many-to-one name="responsable"
+                     class="datos.Empleado"
+                     column="responsableId"/>
+
+        <!-- RELACION 1:N CON EMPLEADOS -->
+        <bag name="empleados"
+             inverse="true">
+
+            <key column="unidadVentaId"/>
+
+            <one-to-many
+                class="datos.Empleado"/>
+
+        </bag>
+
+        <!-- RELACION 1:N CON PEDIDOS -->
+        <bag name="pedidos"
+             inverse="true">
+
+            <key column="unidadVentaId"/>
+
+            <one-to-many
+                class="datos.Pedido"/>
+
+        </bag>
+
+        <!-- RELACION N:M CON PLATOS -->
+        <bag name="platos"
+             table="unidadVenta_plato">
+
+            <key column="unidadVentaId"/>
+
+            <many-to-many
+                class="datos.Plato"
+                column="platoId"/>
+
+        </bag>
+
+        <!-- RELACION N:M CON FESTIVALES -->
+        <bag name="festivales"
+             table="unidadVenta_festival">
+
+            <key column="unidadVentaId"/>
+
+            <many-to-many
+                class="datos.Festival"
+                column="festivalId"/>
+
+        </bag>
+
+        <!-- HERENCIA: FOOD TRUCK -->
+        <subclass name="datos.FoodTruck"
+                  discriminator-value="FOODTRUCK">
+
+            <property name="patente"
+                      column="patente"
+                      type="string"/>
+
+            <property name="requiereElectricidad"
+                      column="requiereElectricidad"
+                      type="boolean"/>
+
+        </subclass>
+
+        <!-- HERENCIA: PUESTO DESARMABLE -->
+        <subclass name="datos.PuestoDesarmable"
+                  discriminator-value="PUESTO_DESARMABLE">
+
+            <property name="cantidadCarpas"
+                      column="cantidadCarpas"
+                      type="integer"/>
+
+            <property name="tiempoMontaje"
+                      column="tiempoMontaje"
+                      type="integer"/>
+
+        </subclass>
+
+    </class>
+
+</hibernate-mapping>
