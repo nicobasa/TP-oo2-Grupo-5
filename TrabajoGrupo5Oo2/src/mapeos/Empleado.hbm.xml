@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "https://hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="datos.Empleado" table="empleado">
+
+        <!-- ID -->
+        <id name="id" column="id">
+            <generator class="identity"/>
+        </id>
+
+        <!-- DISCRIMINADOR DE HERENCIA -->
+        <discriminator column="tipoEmpleado" type="string"/>
+
+        <!-- ATRIBUTOS -->
+        <property name="nombre"
+                  column="nombre"
+                  type="string"
+                  not-null="true"/>
+
+        <property name="apellido"
+                  column="apellido"
+                  type="string"
+                  not-null="true"/>
+
+        <property name="dni"
+                  column="dni"
+                  type="long"
+                  unique="true"
+                  not-null="true"/>
+
+        <property name="fechaNacimiento"
+                  column="fechaNacimiento"
+                  type="java.time.LocalDate"
+                  not-null="true"/>
+
+        <property name="fechaIngreso"
+                  column="fechaIngreso"
+                  type="java.time.LocalDate"
+                  not-null="true"/>
+
+        <property name="sueldoBase"
+                  column="sueldoBase"
+                  type="double"
+                  not-null="true"/>
+
+        <!-- RELACIÓN CON UNIDAD DE VENTA -->
+        <many-to-one name="unidadVenta"
+                     class="datos.UnidadVenta"
+                     column="unidadVentaId"
+                     not-null="true"/>
+
+        <!-- HERENCIA: CAJERO -->
+        <subclass name="datos.Cajero"
+                  discriminator-value="CAJERO">
+
+            <property name="turno"
+                      column="turno"
+                      type="string"/>
+
+        </subclass>
+
+        <!-- HERENCIA: COCINERO -->
+        <subclass name="datos.Cocinero"
+                  discriminator-value="COCINERO">
+
+            <property name="especialidadCulinaria"
+                      column="especialidadCulinaria"
+                      type="string"/>
+
+            <property name="plusCategoria"
+                      column="plusCategoria"
+                      type="double"/>
+
+        </subclass>
+
+    </class>
+
+</hibernate-mapping>
