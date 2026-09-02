@@ -1,5 +1,6 @@
 package negocio;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dao.PedidoDao;
@@ -27,6 +28,17 @@ public class PedidoABM {
 
     public List<Pedido> traer() {
         return dao.traer();
+    }
+    
+    public List<Pedido> traerPedidosPremium(double montoMinimo) {
+    	
+        List<Integer> ids = dao.traerIdsPedidosMayorValor(montoMinimo);
+        
+        if (ids.isEmpty()) {
+            return new ArrayList<Pedido>();
+        }
+        
+        return dao.traerPedidosPorIds(ids);
     }
 
 }
