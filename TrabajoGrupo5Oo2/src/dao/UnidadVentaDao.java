@@ -78,12 +78,43 @@ public class UnidadVentaDao {
         List<UnidadVenta> lista = new ArrayList<UnidadVenta>();
         try {
             iniciaOperacion();
-            Query<UnidadVenta> query = session.createQuery("from UnidadVenta u", UnidadVenta.class);
+            Query<UnidadVenta> query = session.createQuery(
+                    "from UnidadVenta u",
+                    UnidadVenta.class);
             lista = query.getResultList();
         } finally {
             session.close();
         }
         return lista;
+    }
+
+    public List<Object[]> traerRankingPorFestival(int idFestival) {
+
+        List<Object[]> ranking = new ArrayList<Object[]>();
+
+        try {
+            iniciaOperacion();
+
+            Query<Object[]> query = session.createQuery(
+                    "select u, "
+                    + "sum(d.cantidad * d.precioUnitario) "
+                    + "from Pedido p "
+                    + "join p.unidadDeVenta u "
+                    + "join p.detalles d "
+                    + "where p.festival.id = :festivalId "
+                    + "group by u.id, u.nombreComercial, u.codigo "
+                    + "order by sum(d.cantidad * d.precioUnitario) desc",
+                    Object[].class);
+
+            query.setParameter("festivalId", idFestival);
+
+            ranking = query.getResultList();
+
+        } finally {
+            session.close();
+        }
+
+        return ranking;
     }
 
 }
