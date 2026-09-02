@@ -2,132 +2,96 @@ package test;
 
 import java.util.List;
 
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
-
-import dao.HibernateUtil;
 import datos.Festival;
 import datos.UnidadVenta;
+import negocio.FestivalABM;
+import negocio.UnidadVentaABM;
 
 public class TestCande {
 
-public static void main(String[] args) {
+    public static void main(String[] args) {
 
-Session session = null;
-Transaction tx = null;
+        String nombreFestival = "Festival de la Primavera";
 
-String nombreFestival = "Festival de la Primavera";
+        FestivalABM festivalABM = new FestivalABM();
+        UnidadVentaABM unidadVentaABM = new UnidadVentaABM();
 
-try {
+        try {
 
-session = HibernateUtil.getSessionFactory().openSession();
-tx = session.beginTransaction();
+            // Buscar festival
+            List<Festival> festivales = festivalABM.traer();
 
-// =====================================================
-// 1. BUSCAR FESTIVAL
-// =====================================================
+            Festival festival = null;
 
-Query<Festival> consultaFestival = session.createQuery(
-"from Festival f where f.nombre = :nombre",
-Festival.class);
+            for (Festival f : festivales) {
 
-consultaFestival.setParameter("nombre", nombreFestival);
+                if (f.getNombre().equalsIgnoreCase(nombreFestival)) {
+                    festival = f;
+                    break;
+                }
+            }
 
-Festival festival = consultaFestival.uniqueResult();
+            if (festival == null) {
+                System.out.println(
+                        "No existe un festival con el nombre: "
+                        + nombreFestival);
+                return;
+            }
 
-if (festival == null) {
-System.out.println(
-"No existe un festival con el nombre: "
-+ nombreFestival);
+            // Obtener ranking
+            List<Object[]> ranking =
+                    unidadVentaABM.traerRankingPorFestival(
+                            festival.getId());
 
-tx.commit();
-return;
-}
+            // Mostrar resultado
+            System.out.println();
+            System.out.println("============================================================");
+            System.out.println("       RANKING DE UNIDADES DE VENTA");
+            System.out.println("       SEGUN RECAUDACION OBTENIDA");
+            System.out.println("============================================================");
+            System.out.println("Festival: " + festival.getNombre());
+            System.out.println();
 
-// =====================================================
-// 2. OBTENER RANKING DE UNIDADES DE VENTA
-// SEGUN RECAUDACION
-// =====================================================
+            if (ranking.isEmpty()) {
 
-Query<Object[]> consultaRanking = session.createQuery(
-"select u, "
-+ "sum(d.cantidad * d.precioUnitario) "
-+ "from Pedido p "
-+ "join p.unidadDeVenta u "
-+ "join p.detalles d "
-+ "where p.festival.id = :festivalId "
-+ "group by u.id, u.nombreComercial, u.codigo "
-+ "order by sum(d.cantidad * d.precioUnitario) desc",
-Object[].class);
+                System.out.println(
+                        "El festival no posee pedidos registrados.");
 
-consultaRanking.setParameter(
-"festivalId",
-festival.getId());
+            } else {
 
-List<Object[]> ranking = consultaRanking.getResultList();
+                int posicion = 1;
 
-// =====================================================
-// 3. MOSTRAR RESULTADO
-// =====================================================
+                for (Object[] fila : ranking) {
 
-System.out.println();
-System.out.println("============================================================");
-System.out.println(" RANKING DE UNIDADES DE VENTA");
-System.out.println(" SEGUN RECAUDACION OBTENIDA");
-System.out.println("============================================================");
-System.out.println("Festival: " + festival.getNombre());
-System.out.println();
+                    UnidadVenta unidad =
+                            (UnidadVenta) fila[0];
 
-if (ranking.isEmpty()) {
+                    double recaudacion =
+                            ((Number) fila[1]).doubleValue();
 
-System.out.println(
-"El festival no posee pedidos registrados.");
+                    System.out.println(
+                            posicion + ". "
+                            + unidad.getNombreComercial()
+                            + " | Codigo: "
+                            + unidad.getCodigo()
+                            + " | Recaudacion: $"
+                            + String.format("%.2f", recaudacion));
 
-} else {
+                    posicion++;
+                }
+            }
 
-int posicion = 1;
+            System.out.println();
+            System.out.println("============================================================");
+            System.out.println("       RANKING GENERADO CORRECTAMENTE");
+            System.out.println("============================================================");
 
-for (Object[] fila : ranking) {
+        } catch (Exception e) {
 
-UnidadVenta unidad = (UnidadVenta) fila[0];
+            System.err.println(
+                    "ERROR AL EJECUTAR EL RANKING DE UNIDADES DE VENTA:");
 
-double recaudacion = fila[1] != null
-? ((Number) fila[1]).doubleValue()
-: 0;
-
-System.out.println(
-posicion + ". "
-+ unidad.getNombreComercial()
-+ " | Codigo: "
-+ unidad.getCodigo()
-+ " | Recaudacion: $"
-+ String.format("%.2f", recaudacion));
-
-posicion++;
-}
-}
-
-System.out.println();
-System.out.println("============================================================");
-System.out.println(" RANKING GENERADO CORRECTAMENTE");
-System.out.println("============================================================");
-
-tx.commit();
-
-} catch (Exception e) {
-
-if (tx != null) {
-tx.rollback();
-}
-
-e.printStackTrace();
-
-} finally {
-
-if (session != null) {
-session.close();
-}
-}
-}
+            e.printStackTrace();
+        }
+    }
 }
