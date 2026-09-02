@@ -29,4 +29,8 @@ public class UnidadVentaABM {
         return dao.traer();
     }
 
+    public List<Object[]> traerRankingPorFestival(int idFestival) {
+        return dao.traerRankingPorFestival(idFestival);
+    }
+
 }
