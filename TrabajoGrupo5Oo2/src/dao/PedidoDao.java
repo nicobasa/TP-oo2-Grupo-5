@@ -85,5 +85,45 @@ public class PedidoDao {
         }
         return lista;
     }
+    
+    public List<Integer> traerIdsPedidosMayorValor(double montoMinimo) {
+        List<Integer> ids = new ArrayList<Integer>();
+        try {
+            iniciaOperacion();
+            String hql = "SELECT p.id FROM DetallePedido d "
+                       + "JOIN d.pedido p "
+                       + "GROUP BY p.id "
+                       + "HAVING SUM(d.cantidad * d.precioUnitario) > :montoMinimo";
+            Query<Integer> query = session.createQuery(hql, Integer.class);
+            query.setParameter("montoMinimo", montoMinimo);
+            ids = query.getResultList();
+        } finally {
+            session.close();
+        }
+        return ids;
+    }
+
+    public List<Pedido> traerPedidosPorIds(List<Integer> ids) {
+        List<Pedido> pedidos = new ArrayList<Pedido>();
+        if (ids == null || ids.isEmpty()) {
+            return pedidos;
+        }
+        try {
+            iniciaOperacion();
+            String hql = "SELECT DISTINCT p FROM Pedido p "
+                       + "JOIN FETCH p.festival "
+                       + "JOIN FETCH p.unidadDeVenta "
+                       + "JOIN FETCH p.detalles d "
+                       + "JOIN FETCH d.plato "
+                       + "WHERE p.id IN (:ids) "
+                       + "ORDER BY p.fechaTransaccion DESC";
+            Query<Pedido> query = session.createQuery(hql, Pedido.class);
+            query.setParameterList("ids", ids);
+            pedidos = query.getResultList();
+        } finally {
+            session.close();
+        }
+        return pedidos;
+    }
 
 }
