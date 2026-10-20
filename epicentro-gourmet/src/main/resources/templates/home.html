@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Epicentro Gourmet - Inicio</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<nav class="navbar">
+    <a th:href="@{/}" class="navbar-brand">Epicentro Gourmet</a>
+
+    <div class="navbar-actions" sec:authorize="!isAuthenticated()">
+        <a th:href="@{/registro-unidad}" class="btn btn-outline">Registrar Unidad de Venta</a>
+        <a th:href="@{/login}" class="btn">Iniciar Sesión</a>
+    </div>
+
+    <div class="navbar-actions" sec:authorize="isAuthenticated()">
+        <span>Hola, <strong sec:authentication="name"></strong></span>
+        <span class="badge" sec:authentication="principal.authorities"></span>
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+            <button type="submit" class="btn btn-secondary">Cerrar sesión</button>
+        </form>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- Panel rápido según rol cuando está logueado -->
+    <div class="card" sec:authorize="isAuthenticated()">
+        <h2>Panel de Gestión</h2>
+        <p class="subtitle">Seleccioná una acción según tu perfil en el predio ferial.</p>
+
+        <div sec:authorize="hasRole('ADMIN')">
+            <p>Has ingresado como <strong>Administrador del Predio</strong>.</p>
+        </div>
+
+        <div sec:authorize="hasRole('RESPONSABLE')">
+            <p>Has ingresado como <strong>Responsable de Unidad de Venta</strong>.</p>
+        </div>
+
+        <div sec:authorize="hasRole('EMPLEADO')">
+            <p>Has ingresado como <strong>Empleado del Staff</strong>.</p>
+        </div>
+    </div>
+
+    <!-- Listado de Festivales -->
+    <div class="card">
+        <h2>Festivales Anuales Programados</h2>
+        <p class="subtitle">Consultá las fechas y temporadas de los próximos eventos en Epicentro Gourmet.</p>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Festival</th>
+                        <th>Temporada</th>
+                        <th>Fecha de Inicio</th>
+                        <th>Fecha de Fin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="f : ${festivales}">
+                        <td><strong th:text="${f.nombre}"></strong></td>
+                        <td><span class="badge" th:text="${f.temporada}"></span></td>
+                        <td th:text="${f.fechaInicio}"></td>
+                        <td th:text="${f.fechaFin}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
